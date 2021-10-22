@@ -1,0 +1,22 @@
+{
+  "name": "@col0ring/type-utils",
+  "version": "1.0.0",
+  "description": "a ts type tools",
+  "typings": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "author": {
+    "name": "Col0ring",
+    "email": "1561999073@qq.com"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,.md}'"
+  },
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.3"
+  }
+}
