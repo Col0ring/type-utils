@@ -1,1 +1,1 @@
-export * from './array'
+export { ArrayUtils } from './array'

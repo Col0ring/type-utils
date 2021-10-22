@@ -1,18 +1,40 @@
+import { ComputedUtils } from './computed'
+
+import Min = ComputedUtils.Min
+import IsSmallerThan = ComputedUtils.IsSmallerThan
+import IsExtends = ComputedUtils.IsExtends
+import Add = ComputedUtils.Add
 // utils
-type ArrayAndReadonlyArrayByArray<T extends any[] | readonly any[] = any[]> =
-  | T
-  | Readonly<T>
-type ArrayAndReadonlyArrayByItem<T = any> = T[] | readonly T[]
-type IsReadonlyArray<T extends ArrayAndReadonlyArrayByArray> = T extends any[]
-  ? never
-  : T
-type isTuple<T extends ArrayAndReadonlyArrayByArray> =
-  T extends ArrayAndReadonlyArrayByArray<[any, ...any[]] | [...any[], any]>
-    ? T
-    : never
+export type ArrayAndReadonlyArrayByArray<
+  T extends any[] | readonly any[] = any[]
+> = T | Readonly<T>
+export type ArrayAndReadonlyArrayByItem<T = any> = T[] | readonly T[]
+
+const arrayHelperTagSymbol = Symbol('ArrayHelperTag')
+type ArrayHelperTag = typeof arrayHelperTagSymbol
 
 // exports
 export namespace ArrayUtils {
+  export type IsReadonlyArray<T extends ArrayAndReadonlyArrayByArray> =
+    T extends any[] ? never : T
+
+  export type Tuple<T = any, R = T> = ArrayAndReadonlyArrayByArray<
+    [T, ...R[]] | [...R[], T]
+  >
+
+  export type ArrayTuple<
+    N extends number,
+    V = any,
+    // array tool, don't pass in parameters
+    HelperArray extends any[] = []
+  > = HelperArray['length'] extends N
+    ? HelperArray
+    : ArrayTuple<N, V, [...HelperArray, V]>
+
+  export type isTuple<T extends ArrayAndReadonlyArrayByArray> = T extends Tuple
+    ? T
+    : never
+
   export type ArrayItem<T extends ArrayAndReadonlyArrayByItem> =
     T extends ArrayAndReadonlyArrayByItem<infer U> ? U : never
 
@@ -54,17 +76,6 @@ export namespace ArrayUtils {
     V
   > = T extends IsReadonlyArray<T> ? readonly [V, ...T] : [V, ...T]
 
-  export type Insert<
-    T extends ArrayAndReadonlyArrayByArray,
-    I extends number,
-    V
-  > = T extends IsReadonlyArray<T> ? readonly [T, V] : [...T, V]
-
-  export type Remove<
-    T extends ArrayAndReadonlyArrayByArray,
-    I extends number
-  > = T extends IsReadonlyArray<T> ? readonly [T] : [...T]
-
   export type Includes<
     T extends ArrayAndReadonlyArrayByArray,
     V
@@ -103,29 +114,76 @@ export namespace ArrayUtils {
 
   export type Reverse<T extends ArrayAndReadonlyArrayByArray> =
     T extends isTuple<T>
-      ? T extends [infer First, ...infer Rest]
-        ? [...Reverse<Rest>, First]
-        : T extends [...infer Rest, infer Last]
-        ? [Last, ...Reverse<Rest>]
+      ? T extends [infer F, ...infer R]
+        ? [...Reverse<R>, F]
+        : T extends [...infer R, infer L]
+        ? [L, ...Reverse<R>]
         : never
       : T
-  type Min<
-    N extends number,
-    M extends number,
-    A extends any[] = []
-  > = A['length'] extends M
-    ? M
-    : A['length'] extends N
-    ? N
-    : Min<N, M, [...A, '']>
 
-  type Slice<
+  export type Filter<
     T extends ArrayAndReadonlyArrayByArray,
-    C extends number,
-    // helper
-    A extends any[] = [],
-    M extends Min<T['length'], C> = Min<T['length'], C>
-  > = A['length'] extends M ? A : Slice<T, C, [...A, T[A['length']]], M>
+    V,
+    Extends extends boolean = true
+  > = T extends isTuple<T>
+    ? T extends ArrayAndReadonlyArrayByArray<[infer R1, ...infer R2]>
+      ? [
+          ...(IsExtends<R1, V> extends Extends ? [R1] : []),
+          ...Filter<R2, V, Extends>
+        ]
+      : T extends ArrayAndReadonlyArrayByArray<[...infer R1, infer R2]>
+      ? [
+          ...Filter<R1, V, Extends>,
+          ...(IsExtends<R2, V> extends Extends ? [R2] : [])
+        ]
+      : // like [...number[]]
+        T
+    : [ArrayItem<T>] extends [V]
+    ? T
+    : []
 
-  type CC = Slice<[1, 2, 5, 6, undefined], 8>
+  export type Slice<
+    T extends ArrayAndReadonlyArrayByArray,
+    S extends number = 0,
+    E extends number = T['length'],
+    // array tool, don't pass in parameters
+    HelperArray extends any[] = []
+  > = T extends isTuple<T>
+    ? IsSmallerThan<S, E> extends true
+      ? // the end
+        HelperArray['length'] extends Min<T['length'], E>
+        ? T extends IsReadonlyArray<T>
+          ? Readonly<Filter<HelperArray, ArrayHelperTag, false>>
+          : Filter<HelperArray, ArrayHelperTag, false>
+        : Slice<
+            T,
+            S,
+            E,
+            [
+              ...HelperArray,
+              // add tag to increase array length
+              IsSmallerThan<HelperArray['length'], S> extends true
+                ? ArrayHelperTag
+                : T[HelperArray['length']]
+            ]
+          >
+      : // start >= end
+        []
+    : // array or empty array
+      T
+
+  export type Insert<
+    T extends ArrayAndReadonlyArrayByArray,
+    I extends number,
+    V
+  > = T extends IsReadonlyArray<T>
+    ? readonly [...Slice<T, 0, I>, V, ...Slice<T, I>]
+    : [...Slice<T, 0, I>, V, ...Slice<T, I>]
+
+  export type Delete<
+    T extends ArrayAndReadonlyArrayByArray,
+    I extends number
+  > = T extends IsReadonlyArray<T>
+    ? readonly [...Slice<T, 0, I>, ...Slice<T, Add<I, 1>>]
+    : [...Slice<T, 0, I>, ...Slice<T, Add<I, 1>>]
 }
