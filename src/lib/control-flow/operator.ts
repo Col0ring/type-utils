@@ -17,7 +17,7 @@ export type IsEqual<A, B> = If<
 export type IsLessThan<
   A extends number,
   B extends number,
-  // helper
+  // array tool, don't pass in parameters
   HelperArray extends Tuple | [] = []
 > = A extends A
   ? B extends B
@@ -34,7 +34,7 @@ export type IsLessThan<
 export type IsGreaterThan<
   A extends number,
   B extends number,
-  // helper
+  // array tool, don't pass in parameters
   HelperArray extends Tuple | [] = []
 > = A extends A
   ? B extends B
@@ -51,5 +51,18 @@ export type IsGreaterThan<
 export type Add<A extends number, B extends number> = A extends A
   ? B extends B
     ? [...ArrayTuple<A>, ...ArrayTuple<B>]['length']
+    : never
+  : never
+
+export type Sub<
+  A extends number,
+  B extends number,
+  // array tool, don't pass in parameters
+  HelperArray extends Tuple | [] = []
+> = A extends A
+  ? B extends B
+    ? Add<B, HelperArray['length']> extends A
+      ? HelperArray['length']
+      : Sub<A, B, [...HelperArray, any]>
     : never
   : never

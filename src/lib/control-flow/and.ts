@@ -31,6 +31,6 @@ export type And<A extends ArrayAndReadonlyArrayByPassArray> = If<
         >,
         false
       >
-    : false,
+    : never,
   IsTruthy<ArrayItem<A>>
 >

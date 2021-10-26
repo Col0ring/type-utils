@@ -33,6 +33,8 @@ export type Min<A extends Tuple<number>> =
             ? Current
             : number
           : Min<Rest>
+        : Rest['length'] extends 0
+        ? Current
         : Rest extends (infer V)[]
         ? V extends number
           ? IsConstNumber<V> extends true

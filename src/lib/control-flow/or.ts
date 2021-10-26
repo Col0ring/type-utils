@@ -9,6 +9,6 @@ export type Or<A extends ArrayAndReadonlyArrayByPassArray> = If<
     ? If<Current, true, Or<Rest>>
     : A extends ArrayAndReadonlyArrayByPassArray<[...infer Rest, infer Current]>
     ? If<Current, true, Or<Rest>>
-    : false,
+    : never,
   IsTruthy<ArrayItem<A>>
 >

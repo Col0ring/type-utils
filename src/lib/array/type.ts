@@ -39,9 +39,11 @@ export type ArrayTuple<
 export type IsTuple<T extends ArrayAndReadonlyArrayByPassArray> =
   T extends Tuple ? true : false
 
+// notice: distributed condition type
 export type ArrayItem<T extends ArrayAndReadonlyArrayByPassItem> =
   T extends ArrayAndReadonlyArrayByPassItem<infer Item> ? Item : never
 
+// notice: distributed condition type
 export type FlattedArrayItem<T extends ArrayAndReadonlyArrayByPassItem> =
   T extends ArrayAndReadonlyArrayByPassItem<infer Item>
     ? Item extends ArrayAndReadonlyArrayByPassItem

@@ -16,13 +16,13 @@ export type IfElseIf<
   A extends ArrayAndReadonlyArrayByPassArray<
     // if/else if/else
     [
-      [Condition: any, Result: any],
-      ...[Condition: any, Result: any][],
-      [Result: any]
+      IfExpression: [Condition: any, Result: any],
+      ...ElseIfExpressions: [Condition: any, Result: any][],
+      ElseResult: any
     ]
   >
 > = A extends ArrayAndReadonlyArrayByPassArray<
-  [infer IfExpression, ...infer ElseIfExpressions, [infer ElseResult]]
+  [infer IfExpression, ...infer ElseIfExpressions, infer ElseResult]
 >
   ? IfExpression extends [infer IfCondition, infer IfResult]
     ? If<
@@ -39,7 +39,7 @@ export type IfElseIf<
                   [
                     [ElseIfCondition, ElseIfResult],
                     ...OtherElseIfExpressions,
-                    [ElseResult]
+                    ElseResult
                   ]
                 >
               : If<ElseIfCondition, ElseIfResult, ElseResult>

@@ -9,7 +9,6 @@ import {
   IsReadonlyArray,
   IsTuple,
 } from './type'
-
 // TODO
 export type Slice<
   T extends ArrayAndReadonlyArrayByPassArray,

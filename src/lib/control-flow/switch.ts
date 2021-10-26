@@ -13,11 +13,11 @@ export type Switch<
   T,
   A extends ArrayAndReadonlyArrayByPassArray<
     // if/else if/else
-    [...[Case: any, Result: any][], [DefaultResult: any]]
+    [...Cases: [Case: any, Result: any][], DefaultResult: any]
   >,
   Type extends EqualTag | ExtendsTag = ExtendsTag
 > = A extends ArrayAndReadonlyArrayByPassArray<
-  [...infer CaseExpressions, [infer DefaultResult]]
+  [...infer CaseExpressions, infer DefaultResult]
 >
   ? If<
       IsTuple<CaseExpressions>,
@@ -31,14 +31,14 @@ export type Switch<
               IsEqual<T, CurrentCase>,
               CurrentResult,
               OtherCases extends [Case: any, Result: any][]
-                ? Switch<T, [...OtherCases, [DefaultResult]]>
+                ? Switch<T, [...OtherCases, DefaultResult]>
                 : DefaultResult
             >,
             If<
               IsExtends<T, CurrentCase>,
               CurrentResult,
               OtherCases extends [Case: any, Result: any][]
-                ? Switch<T, [...OtherCases, [DefaultResult]]>
+                ? Switch<T, [...OtherCases, DefaultResult]>
                 : DefaultResult
             >
           >
